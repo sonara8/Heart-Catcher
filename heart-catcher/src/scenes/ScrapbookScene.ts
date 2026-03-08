@@ -967,7 +967,7 @@ export class ScrapbookScene implements Scene {
       ctx.fillText('I will always love you Mr. Stark.', 160, 128);
       ctx.fillStyle = '#888899';
       ctx.font = '6px monospace';
-      ctx.fillText('Pepper Potts. 💖 ∞', 160, 140);
+      ctx.fillText('Pepper Potts. 💖 ♾️', 160, 140);
       ctx.globalAlpha = 1;
     }
 
