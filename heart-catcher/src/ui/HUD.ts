@@ -65,7 +65,7 @@ export class HUD {
     this.drawPill(ctx, 210, 2, 84, 14);
     // Heart icon — use the in-game heart sprite if loaded, else canvas fallback
     if (this.heartSprite) {
-      ctx.drawImage(this.heartSprite, 211, 2, 12, 12);
+      ctx.drawImage(this.heartSprite, 211, 2, 14, 14);
     } else {
       this.drawHeartIcon(ctx, 217, 8, '#ff6b9d');
     }
