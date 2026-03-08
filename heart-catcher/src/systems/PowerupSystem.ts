@@ -18,7 +18,6 @@ const POWERUP_COLORS: Record<PowerupType, string> = {
   [PowerupType.RunningShoes]: '#f9a826',
   [PowerupType.SweetScent]: '#c678dd',
   [PowerupType.Mower]: '#56b6c2',
-  [PowerupType.MemoryFragment]: '#ffd700',
 };
 
 /**
@@ -60,7 +59,7 @@ export class PowerupSystem {
     // Check walk-over collection
     for (const sprite of this.sprites) {
       if (sprite.collected) continue;
-      if (distance(playerX, playerY, sprite.worldX, sprite.worldY) < TILE_SIZE * 0.8) {
+      if (distance(playerX, playerY, sprite.worldX, sprite.worldY) < TILE_SIZE * 1.5) {
         this.collect(sprite);
       }
       sprite.bobTimer += dt * 3;
@@ -83,12 +82,8 @@ export class PowerupSystem {
     sprite.collected = true;
     const type = sprite.config.type;
 
-    if (type === PowerupType.MemoryFragment) {
-      EventBus.emit('show-memory', { photoIndex: sprite.config.photoIndex ?? 0 });
-    } else {
-      const current = this.inventory.get(type) ?? 0;
-      this.inventory.set(type, current + 1);
-    }
+    const current = this.inventory.get(type) ?? 0;
+    this.inventory.set(type, current + 1);
 
     this.audio.playSFX('powerup', 0.8);
     EventBus.emit('powerup-collected', { type });
@@ -134,26 +129,58 @@ export class PowerupSystem {
   get isRunning(): boolean { return this.runningActive; }
   get isMowerActive(): boolean { return this.mowerActive; }
 
+  private getPowerupImage(type: PowerupType): HTMLImageElement | null {
+    switch (type) {
+      case PowerupType.RunningShoes: return this.assets.getImage('powerup-run');
+      case PowerupType.Mower:        return this.assets.getImage('powerup-mower');
+      case PowerupType.SweetScent:   return this.assets.getImage('powerup-scent');
+      default:                       return null;
+    }
+  }
+
   render(ctx: CanvasRenderingContext2D, camX: number, camY: number): void {
-    const sheet = this.assets.getImage('powerup-icons');
+    const SIZE = 24;
+    const HALF = SIZE / 2;
 
     for (const sprite of this.sprites) {
       if (sprite.collected) continue;
-      const bob = Math.sin(sprite.bobTimer) * 2;
-      const sx = Math.round(sprite.worldX - camX) - 8;
-      const sy = Math.round(sprite.worldY - camY - bob) - 8;
+      const bob = Math.sin(sprite.bobTimer) * 2.5;
+      // Center of the powerup in screen space
+      const cx = Math.round(sprite.worldX - camX + TILE_SIZE / 2);
+      const cy = Math.round(sprite.worldY - camY + TILE_SIZE / 2 - bob);
 
-      if (sheet) {
-        const typeIndex = Object.values(PowerupType).indexOf(sprite.config.type);
-        ctx.drawImage(sheet, typeIndex * 16, 0, 16, 16, sx, sy, 16, 16);
+      // Pulsing glow ring
+      const glowAlpha = 0.25 + Math.sin(sprite.bobTimer * 1.3) * 0.15;
+      const glowColor = POWERUP_COLORS[sprite.config.type];
+      ctx.save();
+      ctx.globalAlpha = glowAlpha;
+      ctx.fillStyle = glowColor;
+      ctx.beginPath();
+      ctx.arc(cx, cy, HALF + 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Drop shadow
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + HALF - 1, HALF - 2, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      const img = this.getPowerupImage(sprite.config.type);
+      if (img) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(img, cx - HALF, cy - HALF, SIZE, SIZE);
+        ctx.imageSmoothingEnabled = false;
       } else {
-        // Placeholder colored square
-        ctx.fillStyle = POWERUP_COLORS[sprite.config.type];
-        ctx.fillRect(sx, sy, 12, 12);
+        ctx.fillStyle = glowColor;
+        ctx.fillRect(cx - HALF, cy - HALF, SIZE, SIZE);
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1;
-        ctx.strokeRect(sx, sy, 12, 12);
+        ctx.strokeRect(cx - HALF, cy - HALF, SIZE, SIZE);
       }
+      ctx.restore();
     }
 
     // Sweet Scent glow on nearby hearts

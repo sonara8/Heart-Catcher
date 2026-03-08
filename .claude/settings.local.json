@@ -1,7 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(\"/Users/sonarasolomon/Downloads/Soso''s Heart/heart-catcher/public/sprite-debug.html\":*)",
+      "Bash(node -e \"const fs=require\\(''fs''\\),b=fs.readFileSync\\(''/Users/sonarasolomon/Downloads/Soso\\\\''s Heart/Dancy Pixel \\(3\\).png''\\);console.log\\(b.readUInt32BE\\(16\\)+''x''+b.readUInt32BE\\(20\\)\\)\")",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/sonarasolomon/Downloads/Soso''s Heart/exterior.png\")",
+      "Bash(sips --cropOffset 190 0 -c 80 272 \"/Users/sonarasolomon/Downloads/Soso''s Heart/exterior.png\" --out /tmp/exterior-path.png)",
+      "Bash(sips --cropOffset 840 0 -c 72 272 \"/Users/sonarasolomon/Downloads/Soso''s Heart/exterior.png\" --out /tmp/exterior-grass.png)",
+      "Bash(python3 -c \"from PIL import Image; img = Image.open\\(''/Users/sonarasolomon/Downloads/Soso\\\\''s Heart/exterior.png''\\); img.crop\\(\\(0,190,272,270\\)\\).save\\(''/tmp/ext-path.png''\\); img.crop\\(\\(0,840,272,912\\)\\).save\\(''/tmp/ext-grass.png''\\); print\\(''done''\\)\")",
+      "Bash(node -e \"const u = new URL\\(''../../exterior.png'', ''file:///Users/sonarasolomon/Downloads/Soso%27s%20Heart/heart-catcher/scripts/generate-placeholders.mjs''\\); console.log\\(u.pathname\\)\")",
+      "Bash(python3 -c \":*)",
+      "Bash(ffmpeg -version)",
+      "Bash(brew list ffmpeg)"
+    ],
+    "additionalDirectories": [
+      "/Users/sonarasolomon/Downloads/Soso''s Heart"
     ]
   }
 }

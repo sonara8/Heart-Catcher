@@ -12,6 +12,7 @@ import { GameScene } from './scenes/GameScene';
 import { ScrapbookScene } from './scenes/ScrapbookScene';
 import { HowToPlayScene } from './scenes/HowToPlayScene';
 import { SettingsScene } from './scenes/SettingsScene';
+import { LevelSelectScene } from './scenes/LevelSelectScene';
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 
@@ -31,6 +32,8 @@ function makeScrapbookScene(data: unknown): ScrapbookScene {
   const scene = new ScrapbookScene(
     sceneManager, input, audio, saveManager,
     (levelId: number) => makeGameScene(levelId),
+    makeMainMenuScene,
+    assets,
   );
   scene.init(data);
   return scene;
@@ -45,8 +48,18 @@ function makeGameScene(levelId: number): GameScene {
       return new ScrapbookScene(
         sceneManager, input, audio, saveManager,
         (lid: number) => makeGameScene(lid),
+        makeMainMenuScene,
+        assets,
       );
     },
+    () => makeMainMenuScene(),
+  );
+}
+
+function makeLevelSelectScene(): LevelSelectScene {
+  return new LevelSelectScene(
+    sceneManager, input, audio, saveManager,
+    (levelId: number) => makeGameScene(levelId),
   );
 }
 
@@ -64,14 +77,16 @@ function makeMainMenuScene(): MainMenuScene {
     (levelId: number) => makeGameScene(levelId),
     makeHowToPlayScene,
     makeSettingsScene,
+    (data: unknown) => makeScrapbookScene(data),
+    makeLevelSelectScene,
+    assets,
   );
 }
 
 // ─── Init AudioContext on first user gesture ──────────────────────────────────
 
 const initAudio = (): void => {
-  audio.init();
-  audio.resume();
+  audio.init(); // internally calls resume() with the current music key
 };
 window.addEventListener('keydown', initAudio, { once: true });
 window.addEventListener('pointerdown', initAudio, { once: true });
@@ -97,4 +112,3 @@ const loop = new GameLoop(
 
 loop.start();
 
-void makeScrapbookScene; // prevent lint warning on unused factory

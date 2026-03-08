@@ -17,8 +17,8 @@ function d(tx: number, ty: number): NonNullable<LevelConfig['decoys']>[0] {
   return { pos: { tx, ty } };
 }
 
-function p(tx: number, ty: number, type: PowerupType, photoIndex?: number): LevelConfig['powerups'][0] {
-  return { pos: { tx, ty }, type, photoIndex };
+function p(tx: number, ty: number, type: PowerupType): LevelConfig['powerups'][0] {
+  return { pos: { tx, ty }, type };
 }
 
 const SPRING_HINTS = [
@@ -103,7 +103,7 @@ const level03: LevelConfig = {
 
 const level04: LevelConfig = {
   id: 4, season: Season.Spring, displayName: 'The Winding Creek',
-  map: { width: 22, height: 17, tilesetKey: 'tileset-spring', ...makeSpringMap(22, 17, 3) },
+  map: { width: 22, height: 17, tilesetKey: 'tileset-spring', ...makeSpringMap(22, 17, 4) },
   playerStart: { tx: 11, ty: 8 },
   heartsRequired: 13,
   hearts: [
@@ -124,7 +124,7 @@ const level04: LevelConfig = {
 
 const level05: LevelConfig = {
   id: 5, season: Season.Spring, displayName: "Spring's End",
-  map: { width: 22, height: 17, tilesetKey: 'tileset-spring', ...makeSpringMap(22, 17, 3) },
+  map: { width: 22, height: 17, tilesetKey: 'tileset-spring', ...makeSpringMap(22, 17, 5) },
   playerStart: { tx: 3, ty: 3 },
   heartsRequired: 16,
   hearts: [
@@ -137,10 +137,6 @@ const level05: LevelConfig = {
   powerups: [
     p(11, 8, PowerupType.SweetScent),
     p(18, 3, PowerupType.RunningShoes),
-    p(3, 14, PowerupType.MemoryFragment, 0),
-  ],
-  introMessages: [
-    "A Memory Fragment is hidden here! Find it to unlock a special memory in your scrapbook.",
   ],
   hintText: SPRING_HINTS,
   musicKey: 'music-spring',
@@ -160,7 +156,7 @@ const level06: LevelConfig = {
   id: 6, season: Season.Summer, displayName: 'The Warm Meadow',
   map: { width: 25, height: 20, tilesetKey: 'tileset-summer', ...makeSummerMap(25, 20, 1) },
   playerStart: { tx: 12, ty: 10 },
-  heartsRequired: 18,
+  heartsRequired: 12,
   hearts: [
     // Mix of static and moving
     h(4,4), h(5,4), h(6,4), h(4,5), h(5,5),
@@ -187,7 +183,7 @@ const level07: LevelConfig = {
   id: 7, season: Season.Summer, displayName: 'Sunflower Hollow',
   map: { width: 25, height: 20, tilesetKey: 'tileset-summer', ...makeSummerMap(25, 20, 2) },
   playerStart: { tx: 3, ty: 10 },
-  heartsRequired: 22,
+  heartsRequired: 14,
   hearts: [
     h(3,3), h(4,3), h(5,3), h(6,3), h(3,4), h(4,4),
     h(9,5), h(10,5), h(11,5), h(12,5), h(9,6),
@@ -201,7 +197,6 @@ const level07: LevelConfig = {
   powerups: [
     p(12, 10, PowerupType.SweetScent),
     p(5, 18, PowerupType.RunningShoes),
-    p(20, 4, PowerupType.MemoryFragment, 1),
   ],
   hintText: SUMMER_HINTS,
   musicKey: 'music-summer',
@@ -212,7 +207,7 @@ const level08: LevelConfig = {
   id: 8, season: Season.Summer, displayName: 'The Long Afternoon',
   map: { width: 28, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(28, 22, 3) },
   playerStart: { tx: 14, ty: 11 },
-  heartsRequired: 26,
+  heartsRequired: 15,
   hearts: Array.from({ length: 40 }, (_, i) => {
     const tx = 3 + (i % 8) * 3;
     const ty = 3 + Math.floor(i / 8) * 4;
@@ -230,9 +225,9 @@ const level08: LevelConfig = {
 
 const level09: LevelConfig = {
   id: 9, season: Season.Summer, displayName: 'Golden Grass',
-  map: { width: 28, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(28, 22, 3) },
+  map: { width: 28, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(28, 22, 4) },
   playerStart: { tx: 14, ty: 11 },
-  heartsRequired: 30,
+  heartsRequired: 18,
   hearts: Array.from({ length: 45 }, (_, i) => {
     const tx = 3 + (i % 9) * 3;
     const ty = 3 + Math.floor(i / 9) * 3;
@@ -250,9 +245,9 @@ const level09: LevelConfig = {
 
 const level10: LevelConfig = {
   id: 10, season: Season.Summer, displayName: 'The Still Lake',
-  map: { width: 30, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(30, 22, 3) },
+  map: { width: 30, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(30, 22, 5) },
   playerStart: { tx: 15, ty: 11 },
-  heartsRequired: 34,
+  heartsRequired: 20,
   hearts: Array.from({ length: 47 }, (_, i) => {
     const tx = 2 + (i % 10) * 3;
     const ty = 3 + Math.floor(i / 10) * 3;
@@ -262,7 +257,6 @@ const level10: LevelConfig = {
     p(15, 5, PowerupType.SweetScent),
     p(5, 18, PowerupType.RunningShoes),
     p(25, 18, PowerupType.Mower),
-    p(15, 18, PowerupType.MemoryFragment, 2),
   ],
   hintText: SUMMER_HINTS,
   musicKey: 'music-summer',
@@ -271,9 +265,9 @@ const level10: LevelConfig = {
 
 const level11: LevelConfig = {
   id: 11, season: Season.Summer, displayName: 'Cicada Song',
-  map: { width: 30, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(30, 22, 3) },
+  map: { width: 30, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(30, 22, 6) },
   playerStart: { tx: 15, ty: 11 },
-  heartsRequired: 38,
+  heartsRequired: 22,
   hearts: Array.from({ length: 49 }, (_, i) => {
     const tx = 2 + (i % 10) * 3;
     const ty = 2 + Math.floor(i / 10) * 3;
@@ -291,9 +285,9 @@ const level11: LevelConfig = {
 
 const level12: LevelConfig = {
   id: 12, season: Season.Summer, displayName: 'Last of Summer',
-  map: { width: 30, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(30, 22, 3) },
+  map: { width: 30, height: 22, tilesetKey: 'tileset-summer', ...makeSummerMap(30, 22, 7) },
   playerStart: { tx: 15, ty: 11 },
-  heartsRequired: 42,
+  heartsRequired: 25,
   hearts: Array.from({ length: 50 }, (_, i) => {
     const tx = 2 + (i % 10) * 3;
     const ty = 2 + Math.floor(i / 10) * 4;
@@ -316,7 +310,7 @@ const level13: LevelConfig = {
   id: 13, season: Season.Autumn, displayName: 'The Red Forest',
   map: { width: 30, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(30, 25, 1) },
   playerStart: { tx: 15, ty: 12 },
-  heartsRequired: 35,
+  heartsRequired: 20,
   hearts: Array.from({ length: 55 }, (_, i) => h(2 + (i%11)*2, 2 + Math.floor(i/11)*4)),
   decoys: [d(8,8), d(16,5), d(22,12), d(5,18), d(25,18)],
   powerups: [
@@ -337,14 +331,13 @@ const level14: LevelConfig = {
   id: 14, season: Season.Autumn, displayName: 'Fallen Leaves',
   map: { width: 30, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(30, 25, 2) },
   playerStart: { tx: 15, ty: 12 },
-  heartsRequired: 40,
+  heartsRequired: 24,
   hearts: Array.from({ length: 60 }, (_, i) => h(2 + (i%11)*2, 2 + Math.floor(i/11)*3)),
   decoys: [d(7,7), d(14,4), d(21,8), d(4,16), d(18,16), d(24,20), d(9,20)],
   powerups: [
     p(15, 12, PowerupType.SweetScent),
     p(4, 22, PowerupType.RunningShoes),
     p(26, 22, PowerupType.Mower),
-    p(15, 22, PowerupType.MemoryFragment, 3),
   ],
   hintText: AUTUMN_HINTS,
   musicKey: 'music-autumn',
@@ -353,9 +346,9 @@ const level14: LevelConfig = {
 
 const level15: LevelConfig = {
   id: 15, season: Season.Autumn, displayName: 'The Amber Grove',
-  map: { width: 32, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(32, 25, 2) },
+  map: { width: 32, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(32, 25, 3) },
   playerStart: { tx: 16, ty: 12 },
-  heartsRequired: 45,
+  heartsRequired: 28,
   hearts: Array.from({ length: 65 }, (_, i) => h(2 + (i%11)*3, 2 + Math.floor(i/11)*3)),
   decoys: [d(6,6), d(13,4), d(22,6), d(4,14), d(15,13), d(26,14), d(8,20), d(22,20)],
   powerups: [
@@ -370,9 +363,9 @@ const level15: LevelConfig = {
 
 const level16: LevelConfig = {
   id: 16, season: Season.Autumn, displayName: 'Hollow Tree',
-  map: { width: 35, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(35, 25, 3) },
+  map: { width: 35, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(35, 25, 4) },
   playerStart: { tx: 17, ty: 12 },
-  heartsRequired: 50,
+  heartsRequired: 30,
   hearts: Array.from({ length: 70 }, (_, i) => h(2 + (i%12)*3, 2 + Math.floor(i/12)*3)),
   decoys: Array.from({ length: 10 }, (_, i) => d(5 + i * 3, 5 + (i % 3) * 6)),
   powerups: [
@@ -388,16 +381,15 @@ const level16: LevelConfig = {
 
 const level17: LevelConfig = {
   id: 17, season: Season.Autumn, displayName: 'The Fog Path',
-  map: { width: 35, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(35, 25, 3) },
+  map: { width: 35, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(35, 25, 5) },
   playerStart: { tx: 17, ty: 12 },
-  heartsRequired: 55,
+  heartsRequired: 34,
   hearts: Array.from({ length: 75 }, (_, i) => h(2 + (i%12)*3, 2 + Math.floor(i/12)*3)),
   decoys: Array.from({ length: 12 }, (_, i) => d(4 + i * 3, 4 + (i % 4) * 5)),
   powerups: [
     p(17, 12, PowerupType.SweetScent),
     p(4, 23, PowerupType.RunningShoes),
     p(31, 23, PowerupType.Mower),
-    p(17, 3, PowerupType.MemoryFragment, 4),
   ],
   hintText: AUTUMN_HINTS,
   musicKey: 'music-autumn',
@@ -406,9 +398,9 @@ const level17: LevelConfig = {
 
 const level18: LevelConfig = {
   id: 18, season: Season.Autumn, displayName: "Autumn's Last Leaf",
-  map: { width: 35, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(35, 25, 3) },
+  map: { width: 35, height: 25, tilesetKey: 'tileset-autumn', ...makeAutumnMap(35, 25, 6) },
   playerStart: { tx: 17, ty: 12 },
-  heartsRequired: 60,
+  heartsRequired: 38,
   hearts: Array.from({ length: 80 }, (_, i) => h(2 + (i%12)*3, 2 + Math.floor(i/12)*2)),
   decoys: Array.from({ length: 15 }, (_, i) => d(4 + i * 2, 4 + (i % 5) * 4)),
   powerups: [
@@ -429,7 +421,7 @@ const level19: LevelConfig = {
   id: 19, season: Season.Winter, displayName: 'First Snow',
   map: { width: 40, height: 30, tilesetKey: 'tileset-winter', ...makeWinterMap(40, 30, 1) },
   playerStart: { tx: 20, ty: 15 },
-  heartsRequired: 50,
+  heartsRequired: 28,
   hearts: Array.from({ length: 85 }, (_, i) => h(2 + (i%14)*3, 2 + Math.floor(i/14)*4)),
   snowTiles: Array.from({ length: 20 }, (_, i) => ({
     tx: 4 + (i % 6) * 6,
@@ -454,7 +446,7 @@ const level20: LevelConfig = {
   id: 20, season: Season.Winter, displayName: 'Deep Winter',
   map: { width: 40, height: 30, tilesetKey: 'tileset-winter', ...makeWinterMap(40, 30, 2) },
   playerStart: { tx: 20, ty: 15 },
-  heartsRequired: 60,
+  heartsRequired: 32,
   hearts: Array.from({ length: 90 }, (_, i) => h(2 + (i%14)*3, 2 + Math.floor(i/14)*3)),
   snowTiles: Array.from({ length: 25 }, (_, i) => ({
     tx: 3 + (i % 7) * 5,
@@ -466,7 +458,6 @@ const level20: LevelConfig = {
     p(5, 27, PowerupType.RunningShoes),
     p(35, 27, PowerupType.Mower),
     p(20, 15, PowerupType.SweetScent),
-    p(10, 15, PowerupType.MemoryFragment, 5),
   ],
   hintText: WINTER_HINTS,
   musicKey: 'music-winter',
@@ -477,13 +468,14 @@ const level21: LevelConfig = {
   id: 21, season: Season.Winter, displayName: 'Before the Thaw',
   map: { width: 40, height: 30, tilesetKey: 'tileset-winter', ...makeWinterMap(40, 30, 3) },
   playerStart: { tx: 20, ty: 15 },
-  heartsRequired: 70,
+  heartsRequired: 38,
   hearts: Array.from({ length: 100 }, (_, i) => h(2 + (i%14)*3, 2 + Math.floor(i/14)*3)),
   snowTiles: Array.from({ length: 30 }, (_, i) => ({
     tx: 3 + (i % 8) * 5,
     ty: 3 + Math.floor(i / 8) * 5,
   })),
   fogEnabled: true,
+  fogPunchOut: false,
   powerups: [
     p(20, 8, PowerupType.SweetScent),
     p(5, 27, PowerupType.RunningShoes),
@@ -514,9 +506,7 @@ const level22: LevelConfig = {
     h(8,20, HeartType.Golden), h(14,20,HeartType.Golden),
     h(20,20,HeartType.Golden), h(26,20,HeartType.Golden),
   ],
-  powerups: [
-    p(17, 12, PowerupType.MemoryFragment, 6),
-  ],
+  powerups: [],
   hintText: ["These are golden — one for every year of your beautiful life. You're almost there, Dancy!"],
   musicKey: 'music-finale',
   scrapbookEntryId: 22,

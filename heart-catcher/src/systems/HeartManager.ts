@@ -29,6 +29,11 @@ export class HeartManager {
   private foundCount = 0;
   private requiredCount = 0;
   private levelComplete = false;
+  private heartSpriteOverride: HTMLImageElement | null = null;
+
+  setHeartSprite(img: HTMLImageElement | null): void {
+    this.heartSpriteOverride = img;
+  }
 
   constructor(
     private readonly assets: AssetLoader,
@@ -135,7 +140,7 @@ export class HeartManager {
     // Particles + audio
     const wx = tileToWorld(heart.currentPos.tx);
     const wy = tileToWorld(heart.currentPos.ty);
-    this.particles.sparkle(wx, wy);
+    this.particles.sparkle(wx, wy, 20, ['#ff2244', '#ff6688', '#ff99aa', '#ffffff', '#ffbbcc']);
     this.audio.playSFX('heart-find');
 
     this.foundCount++;
@@ -217,9 +222,10 @@ export class HeartManager {
   }
 
   render(ctx: CanvasRenderingContext2D, camX: number, camY: number): void {
-    const sheet = this.assets.getImage('heart-normal');
     const grassSheet = this.assets.getImage('grass-rustle');
+    const redHeart = this.assets.getImage('heart-red');
     const FRAME_W = 16, FRAME_H = 16;
+    const HEART_SIZE = 26;
 
     for (const [key, heart] of this.hearts) {
       const isFound = key.startsWith('found-');
@@ -231,12 +237,11 @@ export class HeartManager {
         const wy = tileToWorld(heart.currentPos.ty);
         const sx = Math.round(wx - camX) - FRAME_W / 2;
         const sy = Math.round(wy - camY) - FRAME_H / 2;
-        const srcX = frame * FRAME_W;
-        ctx.drawImage(grassSheet, srcX, 0, FRAME_W, FRAME_H, sx, sy, FRAME_W, FRAME_H);
+        ctx.drawImage(grassSheet, frame * FRAME_W, 0, FRAME_W, FRAME_H, sx, sy, FRAME_W, FRAME_H);
       }
 
       // Revealed heart sprite
-      if (isFound && heart.visible && heart.alpha > 0 && sheet) {
+      if (isFound && heart.visible && heart.alpha > 0) {
         const wx = tileToWorld(heart.currentPos.tx);
         const wy = tileToWorld(heart.currentPos.ty);
         const sx = Math.round(wx - camX);
@@ -245,12 +250,15 @@ export class HeartManager {
         ctx.globalAlpha = heart.alpha;
         ctx.translate(sx, sy);
         ctx.scale(heart.scaleX, heart.scaleY);
-        const frameRow = heart.config.type === HeartType.Golden ? 1 : 0;
-        ctx.drawImage(
-          sheet,
-          0, frameRow * FRAME_H, FRAME_W, FRAME_H,
-          -FRAME_W / 2, -FRAME_H / 2, FRAME_W, FRAME_H,
-        );
+        if (this.heartSpriteOverride) {
+          const OW = 36, OH = 36;
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(this.heartSpriteOverride, -OW / 2, -OH / 2, OW, OH);
+        } else if (redHeart) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(redHeart, -HEART_SIZE / 2, -HEART_SIZE / 2, HEART_SIZE, HEART_SIZE);
+        }
+        ctx.imageSmoothingEnabled = false;
         ctx.restore();
       }
     }

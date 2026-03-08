@@ -1,6 +1,6 @@
 /**
- * DialogueBox — rounded panel with typewriter text effect.
- * Used for: Soso Call hints, tutorial messages.
+ * DialogueBox — rounded panel with typewriter text effect + portrait.
+ * Used for: Dancy hints, tutorial messages.
  */
 export class DialogueBox {
   private visible = false;
@@ -9,6 +9,11 @@ export class DialogueBox {
   private charTimer = 0;
   private readonly CHAR_RATE = 0.03; // seconds per character
   private onDismiss: (() => void) | null = null;
+  private portrait: HTMLImageElement | null = null;
+
+  setPortrait(img: HTMLImageElement | null): void {
+    this.portrait = img;
+  }
 
   show(text: string, onDismiss?: () => void): void {
     this.text = text;
@@ -48,11 +53,16 @@ export class DialogueBox {
   render(ctx: CanvasRenderingContext2D): void {
     if (!this.visible) return;
 
-    const x = 8, y = 160;
+    const x = 8, y = 155;
     const w = 304, h = 72;
+    const PORTRAIT_SIZE = 34;
+    const PORTRAIT_X = x + 4;
+    const PORTRAIT_Y = y + 4;
+    const TEXT_X = x + PORTRAIT_SIZE + 10;
+    const TEXT_W = w - PORTRAIT_SIZE - 16;
 
     // Panel
-    ctx.fillStyle = 'rgba(10,10,30,0.9)';
+    ctx.fillStyle = 'rgba(10,10,30,0.92)';
     this.roundRect(ctx, x, y, w, h, 4);
     ctx.fill();
     ctx.strokeStyle = '#ff6b9d';
@@ -60,16 +70,42 @@ export class DialogueBox {
     this.roundRect(ctx, x + 0.5, y + 0.5, w - 1, h - 1, 4);
     ctx.stroke();
 
-    // Soso name tag
+    // Portrait panel
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    this.roundRect(ctx, PORTRAIT_X, PORTRAIT_Y, PORTRAIT_SIZE, PORTRAIT_SIZE, 3);
+    ctx.fill();
+    ctx.strokeStyle = '#ff6b9d88';
+    ctx.lineWidth = 1;
+    this.roundRect(ctx, PORTRAIT_X + 0.5, PORTRAIT_Y + 0.5, PORTRAIT_SIZE - 1, PORTRAIT_SIZE - 1, 3);
+    ctx.stroke();
+    if (this.portrait) {
+      ctx.save();
+      this.roundRect(ctx, PORTRAIT_X + 1, PORTRAIT_Y + 1, PORTRAIT_SIZE - 2, PORTRAIT_SIZE - 2, 2);
+      ctx.clip();
+      ctx.drawImage(this.portrait, PORTRAIT_X + 1, PORTRAIT_Y + 1, PORTRAIT_SIZE - 2, PORTRAIT_SIZE - 2);
+      ctx.restore();
+    } else {
+      // Placeholder silhouette
+      ctx.fillStyle = '#c68040';
+      ctx.beginPath();
+      ctx.arc(PORTRAIT_X + PORTRAIT_SIZE / 2, PORTRAIT_Y + 12, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#c68040';
+      ctx.beginPath();
+      ctx.arc(PORTRAIT_X + PORTRAIT_SIZE / 2, PORTRAIT_Y + PORTRAIT_SIZE + 4, 16, Math.PI, 0);
+      ctx.fill();
+    }
+
+    // DANCY name tag
     ctx.fillStyle = '#ff6b9d';
     ctx.font = 'bold 7px monospace';
-    ctx.fillText('Soso:', x + 6, y + 12);
+    ctx.fillText('Soso:', TEXT_X, y + 12);
 
     // Message text (word-wrapped)
     ctx.fillStyle = '#ffffff';
     ctx.font = '7px monospace';
     const displayed = this.text.slice(0, this.displayedChars);
-    this.drawWrappedText(ctx, displayed, x + 6, y + 23, w - 12, 9);
+    this.drawWrappedText(ctx, displayed, TEXT_X, y + 23, TEXT_W, 9);
 
     // Blinking cursor if done
     if (this.displayedChars >= this.text.length) {

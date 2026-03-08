@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"/Users/sonarasolomon/Downloads/Soso''s Heart/heart-catcher/assets/sprites/dancy-idle\"*)",
+      "Bash(python3 -c \"from PIL import Image; img = Image.open\\(\"\"/Users/sonarasolomon/Downloads/Soso''s Heart/Soso Giggle new.png\"\"\\); print\\(img.size\\)\")",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/sonarasolomon/Downloads/Soso''s Heart/Soso Giggle new.png\")",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/sonarasolomon/Downloads/Soso Giggle/10.png\")",
+      "Bash(convert --version)",
+      "Bash(node -e \":*)",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/sonarasolomon/Downloads/Soso''s Heart/Snow Pile.png\")",
+      "Bash(xargs cat -n)"
+    ],
+    "additionalDirectories": [
+      "/Users/sonarasolomon/Downloads/Soso''''s Heart",
+      "/Users/sonarasolomon/Downloads/Soso''s Heart"
+    ]
+  }
+}

@@ -45,6 +45,15 @@ export class InputManager {
   private onKeyUp = (e: KeyboardEvent): void => {
     this.keys.delete(e.code);
     this.justReleasedKeys.add(e.code);
+    // macOS never fires keyup for other keys while Meta is held, so when Meta
+    // is released all co-held keys are stuck in the pressed set. Clear them.
+    if (e.code === 'MetaLeft' || e.code === 'MetaRight') {
+      for (const key of [...this.keys]) {
+        if (key !== 'MetaLeft' && key !== 'MetaRight') {
+          this.keys.delete(key);
+        }
+      }
+    }
   };
 
   private onPointerDown = (e: PointerEvent): void => {
@@ -74,6 +83,16 @@ export class InputManager {
   flush(): void {
     this.justPressedKeys.clear();
     this.justReleasedKeys.clear();
+  }
+
+  /** Clear ALL input state — call when switching scenes to prevent key bleed-through */
+  clearAll(): void {
+    this.keys.clear();
+    this.justPressedKeys.clear();
+    this.justReleasedKeys.clear();
+    this.touchTarget = null;
+    this.prevPadButtons = [];
+    this.currPadButtons = [];
   }
 
   clearTouchTarget(): void {

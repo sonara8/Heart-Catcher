@@ -12,6 +12,9 @@ import type { AssetLoader } from '../engine/AssetLoader';
 export class FogSystem {
   private snowTiles = new Map<string, { shoveled: boolean; anim: number; animTimer: number }>();
   private fogEnabled = false;
+  private fogPunchOut = true;
+  private fogCanvas: HTMLCanvasElement | null = null;
+  private fogCtx: CanvasRenderingContext2D | null = null;
 
   constructor(
     private readonly assets: AssetLoader,
@@ -19,9 +22,10 @@ export class FogSystem {
     private readonly collision: CollisionMap,
   ) {}
 
-  init(snowTiles: TilePos[], fogEnabled: boolean): void {
+  init(snowTiles: TilePos[], fogEnabled: boolean, fogPunchOut = true): void {
     this.snowTiles.clear();
     this.fogEnabled = fogEnabled;
+    this.fogPunchOut = fogPunchOut;
 
     for (const pos of snowTiles) {
       this.snowTiles.set(this.posKey(pos), { shoveled: false, anim: 0, animTimer: 0 });
@@ -63,8 +67,14 @@ export class FogSystem {
   }
 
   renderSnow(ctx: CanvasRenderingContext2D, camX: number, camY: number): void {
-    const sheet = this.assets.getImage('snow-shovel');
+    const pile = this.assets.getImage('snow-pile');
 
+    // Drawn size: 20×20, centered on tile
+    const DST = 20;
+    const offset = (TILE_SIZE - DST) / 2;
+
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
     for (const [key, state] of this.snowTiles) {
       if (state.shoveled && state.anim === 0) continue;
 
@@ -72,39 +82,57 @@ export class FogSystem {
       const wx = tx * TILE_SIZE - camX;
       const wy = ty * TILE_SIZE - camY;
 
-      if (sheet) {
-        const frame = state.shoveled ? 2 : 0;
-        ctx.drawImage(sheet, frame * TILE_SIZE, 0, TILE_SIZE, TILE_SIZE, wx, wy, TILE_SIZE, TILE_SIZE);
+      // Fade out when shoveled (animTimer runs 0→0.5)
+      const alpha = state.shoveled ? Math.max(0, 1 - state.animTimer / 0.5) : 1;
+      ctx.globalAlpha = alpha;
+
+      if (pile) {
+        ctx.drawImage(pile, 0, 0, 1792, 1792, wx + offset, wy + offset, DST, DST);
       } else {
-        // Placeholder: light blue snow overlay
-        ctx.fillStyle = `rgba(200,230,255,${state.shoveled ? 0.3 : 0.7})`;
+        ctx.fillStyle = `rgba(200,230,255,${alpha * 0.7})`;
         ctx.fillRect(wx, wy, TILE_SIZE, TILE_SIZE);
       }
     }
+    ctx.globalAlpha = 1;
+    ctx.restore();
   }
 
   renderFog(ctx: CanvasRenderingContext2D, playerScreenX: number, playerScreenY: number): void {
     if (!this.fogEnabled) return;
 
-    ctx.save();
-    // Dark fog overlay
-    ctx.fillStyle = 'rgba(5,5,20,0.72)';
-    ctx.fillRect(0, 0, 320, 240);
+    // Lazily create offscreen canvas so destination-out only erases the fog layer,
+    // not the main canvas (which would make the player invisible).
+    if (!this.fogCanvas) {
+      this.fogCanvas = document.createElement('canvas');
+      this.fogCanvas.width = 320;
+      this.fogCanvas.height = 240;
+      this.fogCtx = this.fogCanvas.getContext('2d');
+    }
+    const oc = this.fogCtx!;
 
-    // Punch out circular visibility around player
-    ctx.globalCompositeOperation = 'destination-out';
-    const radius = 72;
-    const gradient = ctx.createRadialGradient(
-      playerScreenX, playerScreenY, radius * 0.4,
-      playerScreenX, playerScreenY, radius,
-    );
-    gradient.addColorStop(0, 'rgba(0,0,0,1)');
-    gradient.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(playerScreenX, playerScreenY, radius, 0, Math.PI * 2);
-    ctx.fill();
+    // Fill offscreen canvas with dark fog
+    oc.clearRect(0, 0, 320, 240);
+    oc.fillStyle = 'rgba(5,5,20,0.85)';
+    oc.fillRect(0, 0, 320, 240);
 
-    ctx.restore();
+    // Optionally punch circular hole around player
+    if (this.fogPunchOut) {
+      oc.globalCompositeOperation = 'destination-out';
+      const radius = 72;
+      const gradient = oc.createRadialGradient(
+        playerScreenX, playerScreenY, radius * 0.4,
+        playerScreenX, playerScreenY, radius,
+      );
+      gradient.addColorStop(0, 'rgba(0,0,0,1)');
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+      oc.fillStyle = gradient;
+      oc.beginPath();
+      oc.arc(playerScreenX, playerScreenY, radius, 0, Math.PI * 2);
+      oc.fill();
+      oc.globalCompositeOperation = 'source-over';
+    }
+
+    // Composite fog layer onto main canvas — game world shows through the hole
+    ctx.drawImage(this.fogCanvas, 0, 0);
   }
 }

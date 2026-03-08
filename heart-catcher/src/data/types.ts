@@ -18,7 +18,6 @@ export enum PowerupType {
   RunningShoes = 'running_shoes',
   SweetScent = 'sweet_scent',
   Mower = 'mower',
-  MemoryFragment = 'memory_fragment',
 }
 
 export interface TilePos {
@@ -41,8 +40,6 @@ export interface DecoyConfig {
 export interface PowerupConfig {
   pos: TilePos;
   type: PowerupType;
-  /** Index into photos array for MemoryFragment powerups */
-  photoIndex?: number;
 }
 
 export interface LevelMap {
@@ -68,6 +65,8 @@ export interface LevelConfig {
   /** Winter only: tiles that must be shoveled before interaction */
   snowTiles?: TilePos[];
   fogEnabled?: boolean;
+  /** If false, fog covers everything with no visibility circle (default true) */
+  fogPunchOut?: boolean;
   powerups: PowerupConfig[];
   hintText: string[];
   /** Shown once at level start in sequence via DialogueBox — explains new mechanics */
@@ -81,6 +80,7 @@ export interface ScrapbookEntry {
   levelId: number;
   title: string;
   message: string;
+  photoKey?: string;
 }
 
 export interface LevelSave {

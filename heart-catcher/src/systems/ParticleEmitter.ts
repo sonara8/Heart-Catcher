@@ -35,23 +35,24 @@ export class ParticleEmitter {
   }
 
   /** Sparkle burst when a heart is found */
-  sparkle(worldX: number, worldY: number, count = 12): void {
-    const colors = ['#ff6b9d', '#ffd700', '#ffffff', '#ff9ef5'];
+  sparkle(worldX: number, worldY: number, count = 18, colors = ['#ff6b9d', '#ffd700', '#ffffff', '#ff9ef5']): void {
     for (let i = 0; i < count; i++) {
       const p = this.acquire();
       if (!p) break;
-      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
-      const speed = 30 + Math.random() * 40;
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      // Two rings: fast outer burst + slower inner drift
+      const isOuter = i % 3 !== 0;
+      const speed = isOuter ? 55 + Math.random() * 65 : 20 + Math.random() * 30;
       p.active = true;
       p.x = worldX;
       p.y = worldY;
       p.vx = Math.cos(angle) * speed;
       p.vy = Math.sin(angle) * speed;
-      p.life = 0.5 + Math.random() * 0.3;
+      p.life = 0.55 + Math.random() * 0.4;
       p.maxLife = p.life;
       p.color = colors[Math.floor(Math.random() * colors.length)];
-      p.size = 1 + Math.floor(Math.random() * 2);
-      p.gravity = 60;
+      p.size = isOuter ? 2 + Math.floor(Math.random() * 2) : 1;
+      p.gravity = isOuter ? 50 : 30;
     }
   }
 
@@ -73,6 +74,27 @@ export class ParticleEmitter {
       p.color = colors[Math.floor(Math.random() * colors.length)];
       p.size = 2;
       p.gravity = 80;
+    }
+  }
+
+  /** Leaf trail behind player while moving — autumn/spring seasons */
+  leafTrail(worldX: number, worldY: number, season: string): void {
+    const colors = season === 'autumn'
+      ? ['#d4621a', '#f8a020', '#c84020', '#e0b030']
+      : ['#78c040', '#98e040', '#c8e860'];
+    for (let i = 0; i < 2; i++) {
+      const p = this.acquire();
+      if (!p) break;
+      p.active = true;
+      p.x = worldX + (Math.random() - 0.5) * 6;
+      p.y = worldY + (Math.random() - 0.5) * 4;
+      p.vx = (Math.random() - 0.5) * 16;
+      p.vy = -10 - Math.random() * 20;
+      p.life = 0.4 + Math.random() * 0.3;
+      p.maxLife = p.life;
+      p.color = colors[Math.floor(Math.random() * colors.length)];
+      p.size = 2;
+      p.gravity = 35;
     }
   }
 

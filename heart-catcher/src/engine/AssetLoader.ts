@@ -7,10 +7,23 @@
 export class AssetLoader {
   private images = new Map<string, HTMLImageElement>();
   private audioBuffers = new Map<string, AudioBuffer>();
+  private pendingAudioBuffers = new Map<string, ArrayBuffer>();
   private audioCtx: AudioContext | null = null;
 
-  setAudioContext(ctx: AudioContext): void {
+  async setAudioContext(ctx: AudioContext): Promise<void> {
     this.audioCtx = ctx;
+    // Decode all pending audio buffers in parallel for speed
+    await Promise.all(
+      Array.from(this.pendingAudioBuffers.entries()).map(async ([key, arrayBuffer]) => {
+        try {
+          const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+          this.audioBuffers.set(key, audioBuffer);
+        } catch {
+          console.warn(`Could not decode pending audio: ${key}`);
+        }
+      }),
+    );
+    this.pendingAudioBuffers.clear();
   }
 
   async loadImage(key: string, url: string): Promise<HTMLImageElement> {
@@ -27,11 +40,15 @@ export class AssetLoader {
   }
 
   async loadAudio(key: string, url: string): Promise<AudioBuffer | null> {
-    if (!this.audioCtx) return null;
     if (this.audioBuffers.has(key)) return this.audioBuffers.get(key)!;
     try {
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
+      if (!this.audioCtx) {
+        // Store raw bytes to decode once AudioContext is available
+        this.pendingAudioBuffers.set(key, arrayBuffer);
+        return null;
+      }
       const audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
       this.audioBuffers.set(key, audioBuffer);
       return audioBuffer;

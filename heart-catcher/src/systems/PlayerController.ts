@@ -38,9 +38,10 @@ export class PlayerController {
   private activeTweenId = -1;
   private touchCooldown = 0;
   private isRunning = false;
+  private runEnabled = false;
 
   readonly anim = new AnimationController();
-  private spritesheet: HTMLImageElement | null = null;
+  private sprites: Map<string, HTMLImageElement> = new Map();
 
   // Visual position (may differ from world position during tween)
   renderX: number;
@@ -62,20 +63,21 @@ export class PlayerController {
   }
 
   private setupAnimations(): void {
-    // LPC spritesheet: 64×64 frames, walk rows 8-11
-    // Row 8=N, 9=W, 10=S, 11=E (9 frames each, columns 0-8)
-    // Use all 8 walking frames (1-8) to capture full arm swing animation
-    const WALK_FPS = 9;
+    // Static single-frame images per direction — no spritesheet columns
     const dirs = ['s','se','e','ne','n','nw','w','sw'];
     dirs.forEach(dir => {
-      this.anim.define(`walk-${dir}`, { frames: [1, 2, 3, 4, 5, 6, 7, 8], fps: WALK_FPS, loop: true });
+      this.anim.define(`walk-${dir}`, { frames: [0], fps: 9, loop: true });
       this.anim.define(`idle-${dir}`, { frames: [0], fps: 4, loop: true });
     });
     this.anim.play('idle-s');
   }
 
   loadSprite(assets: AssetLoader): void {
-    this.spritesheet = assets.getImage('player-walk');
+    const keys = ['dancy-walk-s','dancy-walk-n','dancy-walk-e','dancy-walk-w','dancy-idle-w','dancy-idle-e','dancy-idle-s','dancy-idle-n'];
+    for (const k of keys) {
+      const img = assets.getImage(k);
+      if (img) this.sprites.set(k, img);
+    }
   }
 
   get tilePos(): TilePos { return { ...this.currentTile }; }
@@ -87,7 +89,7 @@ export class PlayerController {
   update(dt: number): void {
     this.anim.update(dt);
     this.input.pollGamepad();
-    this.isRunning = this.input.isRunDown();
+    this.isRunning = this.runEnabled && this.input.isRunDown();
 
     if (this.touchCooldown > 0) this.touchCooldown -= dt;
 
@@ -189,49 +191,48 @@ export class PlayerController {
     void dx; void dy; // used for facing, already set before call
   }
 
+  setRunEnabled(val: boolean): void { this.runEnabled = val; }
+
   setInteracting(val: boolean): void {
     this.state = val ? 'INTERACTING' : 'IDLE';
   }
 
   render(ctx: CanvasRenderingContext2D, cam: CameraController): void {
-    const sheet = this.spritesheet ?? this.assets.getImage('player-walk');
-    if (!sheet) {
-      const sx = Math.round(this.renderX - cam.x) - 10;
-      const sy = Math.round(this.renderY - cam.y) - 18;
+    const dirKey = `${this.facingDx},${this.facingDy}`;
+    const isIdle = this.state === 'IDLE' || this.state === 'INTERACTING';
+
+    const WALK_KEY: Record<string, string> = {
+      '0,1':  'dancy-walk-s', '-1,1': 'dancy-walk-s', '1,1':  'dancy-walk-s',
+      '0,-1': 'dancy-walk-n', '-1,-1':'dancy-walk-n', '1,-1': 'dancy-walk-n',
+      '1,0':  'dancy-walk-e',
+      '-1,0': 'dancy-walk-w',
+    };
+    const IDLE_KEY: Record<string, string> = {
+      '0,1':  'dancy-idle-s', '-1,1': 'dancy-idle-w', '1,1':  'dancy-idle-e',
+      '0,-1': 'dancy-idle-n', '-1,-1':'dancy-idle-w', '1,-1': 'dancy-idle-e',
+      '1,0':  'dancy-idle-e',
+      '-1,0': 'dancy-idle-w',
+    };
+
+    const key = isIdle ? (IDLE_KEY[dirKey] ?? 'dancy-walk-s') : (WALK_KEY[dirKey] ?? 'dancy-walk-s');
+    const img = this.sprites.get(key);
+
+    const DEST_W = 22, DEST_H = 36;
+    const cx = Math.round(this.renderX - cam.x);
+    const cy = Math.round(this.renderY - cam.y);
+
+    if (!img) {
       ctx.fillStyle = '#e75480';
-      ctx.fillRect(sx, sy, 20, 28);
+      ctx.fillRect(cx - 10, cy - 18, 20, 28);
       return;
     }
 
-    // LPC format: 64×64 px frames, walk rows 8-11
-    // Row 8=N, 9=W, 10=S, 11=E
-    const LPC_ROW: Record<string, number> = {
-      '0,-1': 8,  // N
-      '-1,-1': 8, // NW → N
-      '1,-1': 11, // NE → E
-      '-1,0': 9,  // W
-      '1,0': 11,  // E
-      '0,1': 10,  // S
-      '-1,1': 9,  // SW → W
-      '1,1': 11,  // SE → E
-    };
-
-    const FRAME_SRC = 64;
-    const DEST_W = 22, DEST_H = 32; // enlarged from 16×24
-
-    const dirKey = `${this.facingDx},${this.facingDy}`;
-    const lpcRow = LPC_ROW[dirKey] ?? 10;
-    const col = this.anim.frame; // already 0-8 from frames definition
-
-    const srcX = col * FRAME_SRC;
-    const srcY = lpcRow * FRAME_SRC;
-
-    const sx = Math.round(this.renderX - cam.x) - DEST_W / 2;
-    const sy = Math.round(this.renderY - cam.y) - DEST_H + 5; // feet at renderY
-
+    ctx.save();
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(sheet, srcX, srcY, FRAME_SRC, FRAME_SRC, sx, sy, DEST_W, DEST_H);
+    ctx.translate(cx, cy);
+    ctx.drawImage(img, -DEST_W / 2, -DEST_H + 6, DEST_W, DEST_H);
     ctx.imageSmoothingEnabled = false;
+    ctx.restore();
   }
 
   /** worldY used for depth-sorting */
