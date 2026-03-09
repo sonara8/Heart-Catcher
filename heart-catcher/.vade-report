@@ -1,0 +1,44 @@
+# Vercel Web Analytics Implementation
+
+Successfully implemented Vercel Web Analytics for the Heart Catcher game project.
+
+## Changes Made
+
+### Modified Files:
+- **index.html** - Added Vercel Web Analytics scripts to the head section
+
+### Implementation Details:
+
+Since this is a vanilla TypeScript + Vite project (not using a framework like React, Next.js, etc.), I implemented the **HTML-based approach** as specified in the Vercel Web Analytics guide.
+
+#### Added to index.html:
+```html
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+```
+
+These scripts were placed in the `<head>` section, just before the closing `</head>` tag, following Vercel's best practices for HTML implementations.
+
+### Why This Approach?
+
+1. **No Package Installation Required**: For plain HTML/vanilla projects, Vercel Web Analytics doesn't require the `@vercel/analytics` npm package
+2. **Lightweight**: The script is loaded asynchronously using `defer`, ensuring it doesn't block page rendering
+3. **Framework-Agnostic**: This approach works perfectly with the project's Vite + TypeScript setup
+4. **Production Ready**: The scripts will automatically start tracking page views once deployed to Vercel
+
+### Build Verification
+
+- Ran `npm install` to update dependencies
+- Ran `npm run build` to verify the build completes successfully
+- Confirmed the analytics scripts are correctly included in the production build (`dist/index.html`)
+
+### Next Steps for Deployment
+
+Once deployed to Vercel, the analytics will:
+1. Track page views and visitor metrics automatically
+2. Send data to `/_vercel/insights/view` endpoint (visible in browser Network tab)
+3. Display data in the Vercel Dashboard under the Analytics tab
+
+No additional code changes are needed. The analytics will work automatically after enabling Web Analytics in the Vercel project settings and deploying the updated code.
